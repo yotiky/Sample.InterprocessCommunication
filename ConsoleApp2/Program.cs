@@ -4,29 +4,30 @@ using System.Threading;
 
 namespace ConsoleApp2
 {
-    class Program
-    {
+	class Program
+	{
 		static void Main(string[] args)
 		{
-			var sharedMemory = MemoryMappedFile.OpenExisting("SharedMemory");
-
-			var latestMsg = string.Empty;
-			while (true)
+			using (var sharedMemory = MemoryMappedFile.OpenExisting("SharedMemory"))
 			{
-				using (var accessor = sharedMemory.CreateViewAccessor())
+				var latestMsg = string.Empty;
+				while (true)
 				{
-					var size = accessor.ReadInt32(0);
-					var data = new char[size];
-					accessor.ReadArray<char>(sizeof(int), data, 0, data.Length);
-					var str = new string(data);
-					if (latestMsg != str)
+					using (var accessor = sharedMemory.CreateViewAccessor())
 					{
-						latestMsg = str;
-						Console.WriteLine("Data :" + str);
+						var size = accessor.ReadInt32(0);
+						var data = new char[size];
+						accessor.ReadArray<char>(sizeof(int), data, 0, data.Length);
+						var str = new string(data);
+						if (latestMsg != str)
+						{
+							latestMsg = str;
+							Console.WriteLine("Data :" + str);
+						}
 					}
-				}
 
-				Thread.Sleep(100);
+					Thread.Sleep(100);
+				}
 			}
 		}
 	}

@@ -7,16 +7,19 @@ namespace ConsoleApp1
     {
 		static void Main(string[] args)
 		{
-			var sharedMemory = MemoryMappedFile.CreateNew("SharedMemory", 1024);
+			Console.WriteLine("Please enter a message, and then press Enter.");
 
-			while (true)
+			using (var sharedMemory = MemoryMappedFile.CreateNew("SharedMemory", 1024))
 			{
-				var str = Console.ReadLine();
-				var data = str.ToCharArray();
-				using (var accessor = sharedMemory.CreateViewAccessor())
+				while (true)
 				{
-					accessor.Write(0, data.Length);
-					accessor.WriteArray(sizeof(int), data, 0, data.Length);
+					var str = Console.ReadLine();
+					var data = str.ToCharArray();
+					using (var accessor = sharedMemory.CreateViewAccessor())
+					{
+						accessor.Write(0, data.Length);
+						accessor.WriteArray(sizeof(int), data, 0, data.Length);
+					}
 				}
 			}
 		}
