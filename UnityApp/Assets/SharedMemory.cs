@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Sample : MonoBehaviour
+public class SharedMemory : MonoBehaviour
 {
 	
     // Start is called before the first frame update
