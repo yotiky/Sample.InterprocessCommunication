@@ -12,22 +12,19 @@ namespace ConsoleApp4
         {
             Task.Run(async () =>
             {
-                while (true)
+                using (var stream = new NamedPipeClientStream("NamedPipe"))
                 {
-                    using (var stream = new NamedPipeClientStream("NamedPipe"))
-                    {
-                        await stream.ConnectAsync();
+                    await stream.ConnectAsync();
 
-                        using (var reader = new StreamReader(stream))
+                    using (var reader = new StreamReader(stream))
+                    {
+                        while (stream.IsConnected)
                         {
                             var str = await reader.ReadLineAsync();
-                            if (str != null)
-                            {
-                                Console.WriteLine("Data :" + str);
-                            }
+                            Console.WriteLine("Data :" + str);
+                            Thread.Sleep(100);
                         }
                     }
-                    Thread.Sleep(100);
                 }
             }).Wait();
         }

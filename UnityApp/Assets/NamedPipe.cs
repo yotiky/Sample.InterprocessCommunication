@@ -8,36 +8,45 @@ using UnityEngine;
 
 public class NamedPipe : MonoBehaviour
 {
+    CancellationTokenSource tokenSource = new CancellationTokenSource();
     // Start is called before the first frame update
     async void Start()
     {
         await Task.Run(async () =>
         {
-            while (true)
+            using (var stream = new NamedPipeClientStream("NamedPipe"))
             {
-                using (var stream = new NamedPipeClientStream("NamedPipe"))
-                {
-                    // ConnectAsync : The method or operation is not implemented.
-                    stream.Connect();
+                // ConnectAsync : The method or operation is not implemented.
+                stream.Connect();
 
-                    using (var reader = new StreamReader(stream))
+                using (var reader = new StreamReader(stream))
+                {
+                    while (true)
                     {
                         var str = await reader.ReadLineAsync();
-                        if (str != null)
+                        if (str == null)
                         {
-                            Debug.Log("Data :" + str);
+                            break;
+                        }
+                        Debug.Log("Data :" + str);
+                        Thread.Sleep(100);
+
+                        if(tokenSource.Token.IsCancellationRequested)
+                        {
+                            break;
                         }
                     }
                 }
-                Thread.Sleep(100);
             }
-        });
+            Debug.Log("End of sample.");
+        }, 
+        tokenSource.Token);
 
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDestroy()
     {
-        
+        tokenSource.Cancel();
+        Debug.Log("task cancelled.");
     }
 }
